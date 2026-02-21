@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, Bot, User, Menu, Plus, MessageSquare, Trash2, Copy, Check, Loader2, Paperclip, X, FileText, Image as ImageIcon } from 'lucide-react'
+import { Send, Bot, User, Menu, Plus, MessageSquare, Trash2, Copy, Check, Loader2, Paperclip, X, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -10,36 +10,21 @@ const API_URL = 'https://ai-chatbot-58g6.onrender.com'
 // Component for code blocks with copy button
 const CodeBlock = ({ language, value }) => {
     const [copied, setCopied] = useState(false)
-
     const copyToClipboard = () => {
         navigator.clipboard.writeText(value)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
-
     return (
         <div className="relative group my-4 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-4 py-2 bg-[#1e1e1e] border-b border-[#333]">
                 <span className="text-xs text-gray-400">{language || 'code'}</span>
-                <button
-                    onClick={copyToClipboard}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
-                >
+                <button onClick={copyToClipboard} className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
                     {copied ? <Check size={14} /> : <Copy size={14} />}
                     {copied ? 'Copied!' : 'Copy'}
                 </button>
             </div>
-            <SyntaxHighlighter
-                language={language || 'text'}
-                style={vscDarkPlus}
-                customStyle={{
-                    margin: 0,
-                    padding: '1rem',
-                    background: '#1e1e1e',
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                }}
-            >
+            <SyntaxHighlighter language={language || 'text'} style={vscDarkPlus} customStyle={{ margin: 0, padding: '1rem', background: '#1e1e1e', fontSize: '14px', lineHeight: '1.5' }}>
                 {value}
             </SyntaxHighlighter>
         </div>
@@ -50,9 +35,7 @@ const CodeBlock = ({ language, value }) => {
 const TypingIndicator = () => (
     <div className="bg-[#444654] border-b border-[#4d4d4f]/30">
         <div className="max-w-3xl mx-auto flex gap-4 p-6">
-            <div className="w-8 h-8 rounded bg-[#10a37f] flex items-center justify-center shrink-0">
-                <Bot size={18} />
-            </div>
+            <div className="w-8 h-8 rounded bg-[#10a37f] flex items-center justify-center shrink-0"><Bot size={18} /></div>
             <div className="flex items-center gap-1 h-8">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -65,14 +48,11 @@ const TypingIndicator = () => (
 // STREAMING MESSAGE
 const StreamingMessage = ({ content, onComplete }) => {
     const [displayedText, setDisplayedText] = useState('')
-
     useEffect(() => {
         if (!content) return
-
         let index = 0
         const chunkSize = 3
         const speed = 8
-
         const timer = setInterval(() => {
             if (index < content.length) {
                 const nextChunk = Math.min(index + chunkSize, content.length)
@@ -83,44 +63,32 @@ const StreamingMessage = ({ content, onComplete }) => {
                 onComplete?.()
             }
         }, speed)
-
         return () => clearInterval(timer)
     }, [content, onComplete])
 
     return (
         <div className="bg-[#444654] border-b border-[#4d4d4f]/30">
             <div className="max-w-3xl mx-auto flex gap-4 p-6">
-                <div className="w-8 h-8 rounded bg-[#10a37f] flex items-center justify-center shrink-0">
-                    <Bot size={18} />
-                </div>
+                <div className="w-8 h-8 rounded bg-[#10a37f] flex items-center justify-center shrink-0"><Bot size={18} /></div>
                 <div className="flex-1 min-w-0 prose prose-invert max-w-none">
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                            code({ node, inline, className, children, ...props }) {
-                                const match = /language-(\w+)/.exec(className || '')
-                                return !inline && match ? (
-                                    <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} />
-                                ) : (
-                                    <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
-                                )
-                            },
-                            p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
-                            ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
-                            ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
-                            li({ children }) { return <li className="leading-7">{children}</li> },
-                            h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
-                            h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
-                            h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
-                            strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
-                            blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
-                        }}
-                    >
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                        code({ node, inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '')
+                            return !inline && match ? <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} /> : <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
+                        },
+                        p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
+                        ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
+                        ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
+                        li({ children }) { return <li className="leading-7">{children}</li> },
+                        h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
+                        h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
+                        h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
+                        strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
+                        blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
+                    }}>
                         {displayedText}
                     </ReactMarkdown>
-                    {displayedText.length < content.length && (
-                        <span className="inline-block w-2 h-5 bg-[#10a37f] ml-1 animate-pulse" />
-                    )}
+                    {displayedText.length < content.length && <span className="inline-block w-2 h-5 bg-[#10a37f] ml-1 animate-pulse" />}
                 </div>
             </div>
         </div>
@@ -130,7 +98,6 @@ const StreamingMessage = ({ content, onComplete }) => {
 // REGULAR MESSAGE with file support
 const ChatMessage = ({ message }) => {
     const isUser = message.role === 'user'
-
     return (
         <div className={`${isUser ? 'bg-[#343541]' : 'bg-[#444654]'} border-b border-[#4d4d4f]/30`}>
             <div className="max-w-3xl mx-auto flex gap-4 p-6">
@@ -138,7 +105,6 @@ const ChatMessage = ({ message }) => {
                     {isUser ? <User size={18} /> : <Bot size={18} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                    {/* Show attached files if any */}
                     {message.files && message.files.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-3">
                             {message.files.map((file, idx) => (
@@ -150,34 +116,41 @@ const ChatMessage = ({ message }) => {
                         </div>
                     )}
                     <div className="prose prose-invert max-w-none">
-                        <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                                code({ node, inline, className, children, ...props }) {
-                                    const match = /language-(\w+)/.exec(className || '')
-                                    return !inline && match ? (
-                                        <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} />
-                                    ) : (
-                                        <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
-                                    )
-                                },
-                                p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
-                                ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
-                                ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
-                                li({ children }) { return <li className="leading-7">{children}</li> },
-                                h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
-                                h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
-                                h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
-                                strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
-                                blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
-                            }}
-                        >
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                            code({ node, inline, className, children, ...props }) {
+                                const match = /language-(\w+)/.exec(className || '')
+                                return !inline && match ? <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} /> : <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
+                            },
+                            p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
+                            ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
+                            ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
+                            li({ children }) { return <li className="leading-7">{children}</li> },
+                            h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
+                            h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
+                            h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
+                            strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
+                            blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
+                        }}>
                             {message.content}
                         </ReactMarkdown>
                     </div>
                 </div>
             </div>
         </div>
+    )
+}
+
+// SCROLL TO BOTTOM BUTTON COMPONENT
+const ScrollToBottomButton = ({ onClick, visible }) => {
+    if (!visible) return null
+    return (
+        <button
+            onClick={onClick}
+            className="fixed bottom-24 right-8 z-40 bg-[#40414f] hover:bg-[#4d4d4f] text-white p-2 rounded-full shadow-lg border border-[#4d4d4f] transition-all animate-bounce"
+            title="Scroll to bottom"
+        >
+            <ChevronDown size={20} />
+        </button>
     )
 }
 
@@ -190,7 +163,8 @@ function App() {
     const [conversations, setConversations] = useState([])
     const [currentConvId, setCurrentConvId] = useState(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [attachedFiles, setAttachedFiles] = useState([]) 
+    const [attachedFiles, setAttachedFiles] = useState([])
+    const [showScrollButton, setShowScrollButton] = useState(false) // NEW
 
     const [userId] = useState(() => {
         const saved = localStorage.getItem('ai_saas_user_id')
@@ -203,6 +177,7 @@ function App() {
     const messagesEndRef = useRef(null)
     const textareaRef = useRef(null)
     const fileInputRef = useRef(null)
+    const messagesContainerRef = useRef(null) // NEW
 
     // Auto-resize textarea
     useEffect(() => {
@@ -212,9 +187,30 @@ function App() {
         }
     }, [input])
 
+    // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, isLoading, isStreaming, streamingContent])
+
+    // NEW: Check scroll position to show/hide scroll button
+    useEffect(() => {
+        const container = messagesContainerRef.current
+        if (!container) return
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = container
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+            setShowScrollButton(!isNearBottom)
+        }
+
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [])
+
+    // NEW: Scroll to bottom function
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
 
     useEffect(() => {
         loadConversations()
@@ -230,18 +226,16 @@ function App() {
         }
     }
 
-    //  Handle file selection
     const handleFileSelect = (e) => {
         const files = Array.from(e.target.files)
         const validFiles = files.filter(file => {
-            const isValid = file.size <= 5 * 1024 * 1024 
+            const isValid = file.size <= 5 * 1024 * 1024
             if (!isValid) alert(`${file.name} is too large. Max 5MB.`)
             return isValid
         })
         setAttachedFiles(prev => [...prev, ...validFiles])
     }
 
-    //  Remove attached file
     const removeFile = (index) => {
         setAttachedFiles(prev => prev.filter((_, i) => i !== index))
     }
@@ -252,7 +246,6 @@ function App() {
         const userMsg = input.trim()
         setInput('')
 
-        // Add user message with files
         const newMessage = {
             role: 'user',
             content: userMsg,
@@ -260,12 +253,10 @@ function App() {
             timestamp: new Date().toISOString()
         }
         setMessages(prev => [...prev, newMessage])
-        setAttachedFiles([]) 
+        setAttachedFiles([])
         setIsLoading(true)
 
         try {
-            // TODO: Upload files to backend if needed
-            // For now, just send text
             const res = await fetch(`${API_URL}/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -396,8 +387,8 @@ function App() {
                     <h1 className="font-semibold flex items-center gap-2"><Bot className="text-[#10a37f]" size={24} /> AI SaaS Chat</h1>
                 </header>
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Messages with ref for scroll detection */}
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative">
                     {messages.length === 0 && !isLoading && !isStreaming ? (
                         <div className="text-center mt-32">
                             <Bot size={64} className="mx-auto text-[#10a37f] mb-4" />
@@ -414,10 +405,12 @@ function App() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input with File Upload */}
+                {/* NEW: Scroll to Bottom Button */}
+                <ScrollToBottomButton onClick={scrollToBottom} visible={showScrollButton} />
+
+                {/* Input */}
                 <div className="border-t border-[#4d4d4f] p-4 bg-[#343541]">
                     <div className="max-w-3xl mx-auto">
-                        {/* Attached Files Preview */}
                         {attachedFiles.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {attachedFiles.map((file, idx) => (
@@ -431,24 +424,11 @@ function App() {
                         )}
 
                         <div className="flex gap-2 items-end">
-                            {/* File Upload Button */}
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileSelect}
-                                multiple
-                                accept="image/*,.pdf,.doc,.docx,.txt"
-                                className="hidden"
-                            />
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="p-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                                title="Attach file"
-                            >
+                            <input type="file" ref={fileInputRef} onChange={handleFileSelect} multiple accept="image/*,.pdf,.doc,.docx,.txt" className="hidden" />
+                            <button onClick={() => fileInputRef.current?.click()} className="p-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors" title="Attach file">
                                 <Paperclip size={20} />
                             </button>
 
-                            {/* Textarea with Shift+Enter support */}
                             <textarea
                                 ref={textareaRef}
                                 value={input}
@@ -465,17 +445,11 @@ function App() {
                                 className="flex-1 bg-[#40414f] border border-[#4d4d4f] rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#10a37f] disabled:opacity-50 disabled:cursor-not-allowed resize-none min-h-[48px] max-h-[200px]"
                             />
 
-                            <button
-                                onClick={sendMessage}
-                                disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || isStreaming}
-                                className="bg-[#10a37f] hover:bg-[#0d8c6d] text-white p-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
+                            <button onClick={sendMessage} disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || isStreaming} className="bg-[#10a37f] hover:bg-[#0d8c6d] text-white p-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                             </button>
                         </div>
-                        <p className="text-center text-xs text-gray-500 mt-2">
-                            Enter to send • Shift+Enter for new line • Max file size 5MB
-                        </p>
+                        <p className="text-center text-xs text-gray-500 mt-2">Enter to send • Shift+Enter for new line • Max file size 5MB</p>
                     </div>
                 </div>
             </div>

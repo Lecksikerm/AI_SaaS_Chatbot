@@ -165,6 +165,7 @@ function App() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [attachedFiles, setAttachedFiles] = useState([])
     const [showScrollButton, setShowScrollButton] = useState(false)
+    const [isAtBottom, setIsAtBottom] = useState(true) // NEW: Track if user is at bottom
 
     const [userId] = useState(() => {
         const saved = localStorage.getItem('ai_saas_user_id')
@@ -187,27 +188,35 @@ function App() {
         }
     }, [input])
 
-    // Auto-scroll to bottom
+    // MODIFIED: Auto-scroll to bottom ONLY if user is already near bottom
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages, isLoading, isStreaming, streamingContent])
+        if (isAtBottom) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }
+    }, [messages, isLoading, isStreaming, streamingContent, isAtBottom])
 
-    // Check scroll position to show/hide scroll button
+    // Track scroll position to determine if user is at bottom
     useEffect(() => {
         const container = messagesContainerRef.current
         if (!container) return
 
         const handleScroll = () => {
             const { scrollTop, scrollHeight, clientHeight } = container
-            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
-            setShowScrollButton(!isNearBottom)
+            // Consider "at bottom" if within 100px of the bottom
+            const atBottom = scrollHeight - scrollTop - clientHeight < 100
+            setIsAtBottom(atBottom)
+            setShowScrollButton(!atBottom)
         }
 
         container.addEventListener('scroll', handleScroll)
+        // Initial check
+        handleScroll()
+
         return () => container.removeEventListener('scroll', handleScroll)
     }, [])
 
     const scrollToBottom = () => {
+        setIsAtBottom(true)
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
 
@@ -254,7 +263,7 @@ function App() {
         setMessages(prev => [...prev, newMessage])
         setAttachedFiles([])
         setIsLoading(true)
-
+        setIsAtBottom(true) 
         try {
             const res = await fetch(`${API_URL}/chat`, {
                 method: 'POST',
@@ -307,6 +316,7 @@ function App() {
         setStreamingContent('')
         setAttachedFiles([])
         setSidebarOpen(false)
+        setIsAtBottom(true)
     }
 
     const loadConversation = async (convId) => {
@@ -323,6 +333,7 @@ function App() {
             setMessages(formatted)
             setCurrentConvId(convId)
             setSidebarOpen(false)
+            setIsAtBottom(true) 
         } catch (err) {
             console.error('Failed to load history:', err)
         } finally {

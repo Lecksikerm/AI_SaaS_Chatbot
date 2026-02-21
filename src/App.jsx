@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-const API_URL = 'https://ai-chatbot-58g6.onrender.com '
+const API_URL = 'https://ai-chatbot-58g6.onrender.com'
 
 // Component for code blocks with copy button
 const CodeBlock = ({ language, value }) => {

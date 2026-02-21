@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, Bot, User, Menu, Plus, MessageSquare, Trash2, Copy, Check, Loader2 } from 'lucide-react'
+import { Send, Bot, User, Menu, Plus, MessageSquare, Trash2, Copy, Check, Loader2, Paperclip, X, FileText, Image as ImageIcon } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-// Use relative URL for production, localhost for development
 const API_URL = 'https://ai-chatbot-58g6.onrender.com'
 
 // Component for code blocks with copy button
@@ -47,7 +46,7 @@ const CodeBlock = ({ language, value }) => {
     )
 }
 
-// TYPING INDICATOR - Shows while waiting for AI response
+// TYPING INDICATOR
 const TypingIndicator = () => (
     <div className="bg-[#444654] border-b border-[#4d4d4f]/30">
         <div className="max-w-3xl mx-auto flex gap-4 p-6">
@@ -63,7 +62,7 @@ const TypingIndicator = () => (
     </div>
 )
 
-// STREAMING MESSAGE - Shows response appearing word by word
+// STREAMING MESSAGE
 const StreamingMessage = ({ content, onComplete }) => {
     const [displayedText, setDisplayedText] = useState('')
 
@@ -71,9 +70,8 @@ const StreamingMessage = ({ content, onComplete }) => {
         if (!content) return
 
         let index = 0
-        // Speed up the typing effect (3 characters at a time)
         const chunkSize = 3
-        const speed = 8 // milliseconds
+        const speed = 8
 
         const timer = setInterval(() => {
             if (index < content.length) {
@@ -102,14 +100,9 @@ const StreamingMessage = ({ content, onComplete }) => {
                             code({ node, inline, className, children, ...props }) {
                                 const match = /language-(\w+)/.exec(className || '')
                                 return !inline && match ? (
-                                    <CodeBlock
-                                        language={match[1]}
-                                        value={String(children).replace(/\n$/, '')}
-                                    />
+                                    <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} />
                                 ) : (
-                                    <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>
-                                        {children}
-                                    </code>
+                                    <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
                                 )
                             },
                             p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
@@ -120,14 +113,11 @@ const StreamingMessage = ({ content, onComplete }) => {
                             h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
                             h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
                             strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
-                            blockquote({ children }) {
-                                return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote>
-                            },
+                            blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
                         }}
                     >
                         {displayedText}
                     </ReactMarkdown>
-                    {/* Blinking cursor at the end */}
                     {displayedText.length < content.length && (
                         <span className="inline-block w-2 h-5 bg-[#10a37f] ml-1 animate-pulse" />
                     )}
@@ -137,7 +127,7 @@ const StreamingMessage = ({ content, onComplete }) => {
     )
 }
 
-// REGULAR MESSAGE - For completed messages
+// REGULAR MESSAGE with file support
 const ChatMessage = ({ message }) => {
     const isUser = message.role === 'user'
 
@@ -147,38 +137,44 @@ const ChatMessage = ({ message }) => {
                 <div className={`w-8 h-8 rounded flex items-center justify-center shrink-0 ${isUser ? 'bg-purple-600' : 'bg-[#10a37f]'}`}>
                     {isUser ? <User size={18} /> : <Bot size={18} />}
                 </div>
-                <div className="flex-1 min-w-0 prose prose-invert max-w-none">
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                            code({ node, inline, className, children, ...props }) {
-                                const match = /language-(\w+)/.exec(className || '')
-                                return !inline && match ? (
-                                    <CodeBlock
-                                        language={match[1]}
-                                        value={String(children).replace(/\n$/, '')}
-                                    />
-                                ) : (
-                                    <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>
-                                        {children}
-                                    </code>
-                                )
-                            },
-                            p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
-                            ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
-                            ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
-                            li({ children }) { return <li className="leading-7">{children}</li> },
-                            h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
-                            h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
-                            h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
-                            strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
-                            blockquote({ children }) {
-                                return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote>
-                            },
-                        }}
-                    >
-                        {message.content}
-                    </ReactMarkdown>
+                <div className="flex-1 min-w-0">
+                    {/* Show attached files if any */}
+                    {message.files && message.files.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                            {message.files.map((file, idx) => (
+                                <div key={idx} className="flex items-center gap-2 bg-[#40414f] px-3 py-2 rounded-lg text-sm">
+                                    {file.type.startsWith('image/') ? <ImageIcon size={16} /> : <FileText size={16} />}
+                                    <span className="truncate max-w-[200px]">{file.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <div className="prose prose-invert max-w-none">
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                code({ node, inline, className, children, ...props }) {
+                                    const match = /language-(\w+)/.exec(className || '')
+                                    return !inline && match ? (
+                                        <CodeBlock language={match[1]} value={String(children).replace(/\n$/, '')} />
+                                    ) : (
+                                        <code className="bg-[#1e1e1e] px-1.5 py-0.5 rounded text-sm font-mono text-[#e6e6e6]" {...props}>{children}</code>
+                                    )
+                                },
+                                p({ children }) { return <p className="mb-4 leading-7 text-[#ececf1]">{children}</p> },
+                                ul({ children }) { return <ul className="mb-4 list-disc pl-6 space-y-2 text-[#ececf1]">{children}</ul> },
+                                ol({ children }) { return <ol className="mb-4 list-decimal pl-6 space-y-2 text-[#ececf1]">{children}</ol> },
+                                li({ children }) { return <li className="leading-7">{children}</li> },
+                                h1({ children }) { return <h1 className="text-2xl font-bold mb-4 mt-6 text-white">{children}</h1> },
+                                h2({ children }) { return <h2 className="text-xl font-bold mb-3 mt-5 text-white">{children}</h2> },
+                                h3({ children }) { return <h3 className="text-lg font-bold mb-2 mt-4 text-white">{children}</h3> },
+                                strong({ children }) { return <strong className="font-semibold text-white">{children}</strong> },
+                                blockquote({ children }) { return <blockquote className="border-l-4 border-[#10a37f] pl-4 my-4 italic text-gray-300">{children}</blockquote> },
+                            }}
+                        >
+                            {message.content}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             </div>
         </div>
@@ -188,12 +184,13 @@ const ChatMessage = ({ message }) => {
 function App() {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
-    const [isLoading, setIsLoading] = useState(false) 
-    const [isStreaming, setIsStreaming] = useState(false) 
+    const [isLoading, setIsLoading] = useState(false)
+    const [isStreaming, setIsStreaming] = useState(false)
     const [streamingContent, setStreamingContent] = useState('')
     const [conversations, setConversations] = useState([])
     const [currentConvId, setCurrentConvId] = useState(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [attachedFiles, setAttachedFiles] = useState([]) 
 
     const [userId] = useState(() => {
         const saved = localStorage.getItem('ai_saas_user_id')
@@ -204,6 +201,16 @@ function App() {
     })
 
     const messagesEndRef = useRef(null)
+    const textareaRef = useRef(null)
+    const fileInputRef = useRef(null)
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'
+            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px'
+        }
+    }, [input])
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -223,24 +230,42 @@ function App() {
         }
     }
 
+    //  Handle file selection
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files)
+        const validFiles = files.filter(file => {
+            const isValid = file.size <= 5 * 1024 * 1024 
+            if (!isValid) alert(`${file.name} is too large. Max 5MB.`)
+            return isValid
+        })
+        setAttachedFiles(prev => [...prev, ...validFiles])
+    }
+
+    //  Remove attached file
+    const removeFile = (index) => {
+        setAttachedFiles(prev => prev.filter((_, i) => i !== index))
+    }
+
     const sendMessage = async () => {
-        if (!input.trim() || isLoading || isStreaming) return
+        if ((!input.trim() && attachedFiles.length === 0) || isLoading || isStreaming) return
 
         const userMsg = input.trim()
         setInput('')
 
-        // Add user message immediately
+        // Add user message with files
         const newMessage = {
             role: 'user',
             content: userMsg,
+            files: attachedFiles.map(f => ({ name: f.name, type: f.type })),
             timestamp: new Date().toISOString()
         }
         setMessages(prev => [...prev, newMessage])
-
-        // Show typing indicator (waiting for response)
+        setAttachedFiles([]) 
         setIsLoading(true)
 
         try {
+            // TODO: Upload files to backend if needed
+            // For now, just send text
             const res = await fetch(`${API_URL}/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -259,7 +284,6 @@ function App() {
                 loadConversations()
             }
 
-            // Switch from typing to streaming
             setIsLoading(false)
             setIsStreaming(true)
             setStreamingContent(data.reply)
@@ -269,14 +293,13 @@ function App() {
             setIsLoading(false)
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: '⚠️ Error: Could not connect to AI backend. Make sure the server is running on port 8000.',
+                content: '⚠️ Error: Could not connect to AI backend.',
                 isError: true
             }])
         }
     }
 
     const handleStreamComplete = () => {
-        // Add complete message to history
         setMessages(prev => [...prev, {
             role: 'assistant',
             content: streamingContent,
@@ -292,6 +315,7 @@ function App() {
         setIsLoading(false)
         setIsStreaming(false)
         setStreamingContent('')
+        setAttachedFiles([])
         setSidebarOpen(false)
     }
 
@@ -341,27 +365,15 @@ function App() {
 
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
                     {conversations.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500 text-sm">
-                            No conversations yet
-                        </div>
+                        <div className="text-center py-8 text-gray-500 text-sm">No conversations yet</div>
                     ) : (
                         conversations.map(conv => (
-                            <div
-                                key={conv.id}
-                                className={`group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-colors ${currentConvId === conv.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
-                            >
-                                <div
-                                    className="flex items-center gap-2 flex-1 min-w-0"
-                                    onClick={() => loadConversation(conv.id)}
-                                >
+                            <div key={conv.id} className={`group flex items-center gap-2 px-3 py-2 rounded cursor-pointer transition-colors ${currentConvId === conv.id ? 'bg-white/10' : 'hover:bg-white/5'}`}>
+                                <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => loadConversation(conv.id)}>
                                     <MessageSquare size={14} className="shrink-0 text-gray-400" />
                                     <span className="truncate text-sm">{conv.title}</span>
                                 </div>
-                                <button
-                                    onClick={(e) => deleteConversation(e, conv.id)}
-                                    className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
-                                    title="Delete conversation"
-                                >
+                                <button onClick={(e) => deleteConversation(e, conv.id)} className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100">
                                     <Trash2 size={14} />
                                 </button>
                             </div>
@@ -369,12 +381,9 @@ function App() {
                     )}
                 </div>
 
-                {/* Footer with user info */}
                 <div className="p-3 border-t border-[#4d4d4f]">
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium">
-                            {userId.charAt(0).toUpperCase()}
-                        </div>
+                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium">{userId.charAt(0).toUpperCase()}</div>
                         <span className="truncate">{userId}</span>
                     </div>
                 </div>
@@ -382,15 +391,9 @@ function App() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
-                {/* Header */}
                 <header className="h-14 border-b border-[#4d4d4f] flex items-center px-4">
-                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 mr-2 hover:bg-white/5 rounded">
-                        <Menu size={20} />
-                    </button>
-                    <h1 className="font-semibold flex items-center gap-2">
-                        <Bot className="text-[#10a37f]" size={24} />
-                        AI SaaS Chat
-                    </h1>
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 mr-2 hover:bg-white/5 rounded"><Menu size={20} /></button>
+                    <h1 className="font-semibold flex items-center gap-2"><Bot className="text-[#10a37f]" size={24} /> AI SaaS Chat</h1>
                 </header>
 
                 {/* Messages */}
@@ -399,57 +402,81 @@ function App() {
                         <div className="text-center mt-32">
                             <Bot size={64} className="mx-auto text-[#10a37f] mb-4" />
                             <h2 className="text-2xl font-bold mb-2">How can I help you today?</h2>
-                            <p className="text-gray-400">Start a conversation with the AI assistant</p>
+                            <p className="text-gray-400">Start a conversation or upload files</p>
                         </div>
                     ) : (
                         <>
-                            {/* Past messages */}
-                            {messages.map((msg, idx) => (
-                                <ChatMessage key={idx} message={msg} />
-                            ))}
-
-                            {/* TYPING INDICATOR - Shows while waiting for API */}
+                            {messages.map((msg, idx) => <ChatMessage key={idx} message={msg} />)}
                             {isLoading && <TypingIndicator />}
-
-                            {/* STREAMING MESSAGE - Shows response appearing */}
-                            {isStreaming && (
-                                <StreamingMessage
-                                    content={streamingContent}
-                                    onComplete={handleStreamComplete}
-                                />
-                            )}
+                            {isStreaming && <StreamingMessage content={streamingContent} onComplete={handleStreamComplete} />}
                         </>
                     )}
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input */}
+                {/* Input with File Upload */}
                 <div className="border-t border-[#4d4d4f] p-4 bg-[#343541]">
-                    <div className="max-w-3xl mx-auto flex gap-2">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                            placeholder={isLoading ? "AI is thinking..." : isStreaming ? "AI is typing..." : "Type your message..."}
-                            disabled={isLoading || isStreaming}
-                            className="flex-1 bg-[#40414f] border border-[#4d4d4f] rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#10a37f] disabled:opacity-50 disabled:cursor-not-allowed"
-                        />
-                        <button
-                            onClick={sendMessage}
-                            disabled={!input.trim() || isLoading || isStreaming}
-                            className="bg-[#10a37f] hover:bg-[#0d8c6d] text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                        >
-                            {isLoading ? (
-                                <Loader2 size={20} className="animate-spin" />
-                            ) : (
-                                <Send size={20} />
-                            )}
-                        </button>
+                    <div className="max-w-3xl mx-auto">
+                        {/* Attached Files Preview */}
+                        {attachedFiles.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {attachedFiles.map((file, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 bg-[#40414f] px-3 py-1.5 rounded-lg text-sm">
+                                        {file.type.startsWith('image/') ? <ImageIcon size={14} /> : <FileText size={14} />}
+                                        <span className="truncate max-w-[150px]">{file.name}</span>
+                                        <button onClick={() => removeFile(idx)} className="text-gray-400 hover:text-red-400"><X size={14} /></button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex gap-2 items-end">
+                            {/* File Upload Button */}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                multiple
+                                accept="image/*,.pdf,.doc,.docx,.txt"
+                                className="hidden"
+                            />
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="p-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                                title="Attach file"
+                            >
+                                <Paperclip size={20} />
+                            </button>
+
+                            {/* Textarea with Shift+Enter support */}
+                            <textarea
+                                ref={textareaRef}
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault()
+                                        sendMessage()
+                                    }
+                                }}
+                                placeholder={isLoading ? "AI is thinking..." : "Type your message... (Shift+Enter for new line)"}
+                                disabled={isLoading || isStreaming}
+                                rows={1}
+                                className="flex-1 bg-[#40414f] border border-[#4d4d4f] rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#10a37f] disabled:opacity-50 disabled:cursor-not-allowed resize-none min-h-[48px] max-h-[200px]"
+                            />
+
+                            <button
+                                onClick={sendMessage}
+                                disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || isStreaming}
+                                className="bg-[#10a37f] hover:bg-[#0d8c6d] text-white p-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                            </button>
+                        </div>
+                        <p className="text-center text-xs text-gray-500 mt-2">
+                            Enter to send • Shift+Enter for new line • Max file size 5MB
+                        </p>
                     </div>
-                    <p className="text-center text-xs text-gray-500 mt-2">
-                        AI can make mistakes. Consider checking important information.
-                    </p>
                 </div>
             </div>
         </div>

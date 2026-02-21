@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-const API_URL = 'https://ai-chatbot-58g6.onrender.com'
+const API_URL = 'https://ai-chatbot-58g6.onrender.com '
 
 // Component for code blocks with copy button
 const CodeBlock = ({ language, value }) => {
@@ -164,7 +164,7 @@ function App() {
     const [currentConvId, setCurrentConvId] = useState(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [attachedFiles, setAttachedFiles] = useState([])
-    const [showScrollButton, setShowScrollButton] = useState(false) // NEW
+    const [showScrollButton, setShowScrollButton] = useState(false)
 
     const [userId] = useState(() => {
         const saved = localStorage.getItem('ai_saas_user_id')
@@ -177,7 +177,7 @@ function App() {
     const messagesEndRef = useRef(null)
     const textareaRef = useRef(null)
     const fileInputRef = useRef(null)
-    const messagesContainerRef = useRef(null) // NEW
+    const messagesContainerRef = useRef(null)
 
     // Auto-resize textarea
     useEffect(() => {
@@ -192,7 +192,7 @@ function App() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, isLoading, isStreaming, streamingContent])
 
-    // NEW: Check scroll position to show/hide scroll button
+    // Check scroll position to show/hide scroll button
     useEffect(() => {
         const container = messagesContainerRef.current
         if (!container) return
@@ -207,7 +207,6 @@ function App() {
         return () => container.removeEventListener('scroll', handleScroll)
     }, [])
 
-    // NEW: Scroll to bottom function
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
@@ -405,7 +404,7 @@ function App() {
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* NEW: Scroll to Bottom Button */}
+                {/* Scroll to Bottom Button */}
                 <ScrollToBottomButton onClick={scrollToBottom} visible={showScrollButton} />
 
                 {/* Input */}
@@ -439,7 +438,7 @@ function App() {
                                         sendMessage()
                                     }
                                 }}
-                                placeholder={isLoading ? "AI is thinking..." : "Type your message... (Shift+Enter for new line)"}
+                                placeholder={isLoading ? "AI is thinking..." : "Type your message..."}
                                 disabled={isLoading || isStreaming}
                                 rows={1}
                                 className="flex-1 bg-[#40414f] border border-[#4d4d4f] rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#10a37f] disabled:opacity-50 disabled:cursor-not-allowed resize-none min-h-[48px] max-h-[200px]"
@@ -449,7 +448,7 @@ function App() {
                                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                             </button>
                         </div>
-                        <p className="text-center text-xs text-gray-500 mt-2">Enter to send • Shift+Enter for new line • Max file size 5MB</p>
+                        <p className="text-center text-xs text-gray-500 mt-2">AI can make mistakes. Check important info.</p>
                     </div>
                 </div>
             </div>
